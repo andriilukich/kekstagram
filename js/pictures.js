@@ -98,6 +98,7 @@ BIG_PIC_CONTAINER.querySelector('.likes-count').textContent = pictures[0].likes;
 BIG_PIC_CONTAINER.querySelector('.comments-count').textContent = pictures[0].comments.length;
 BIG_PIC_CONTAINER.querySelector('.social__caption').textContent = pictures[0].description;
 
+// Create COMMENT for a picture
 var createCom = function (data) {
   var liItem = document.createElement('li');
   liItem.classList.add('social__comment');
