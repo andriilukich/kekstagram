@@ -61,48 +61,48 @@ for (var i = 0; i < PHOTOS_AMOUNT; i++) {
 }
 
 // Create TEMPLATE of pictures
-var PHOTO_TEMPLATE = document.querySelector('#picture').content.querySelector('.picture');
-var PICTURE_CONTAINER = document.querySelector('.pictures');
+var photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
+var pictureContainer = document.querySelector('.pictures');
 var photoFragment = document.createDocumentFragment();
 
 var renderPhoto = function (item) {
-  var newPhoto = PHOTO_TEMPLATE.cloneNode(true);
+  var newPhoto = photoTemplate.cloneNode(true);
   newPhoto.querySelector('.picture__img').src = item.url;
   newPhoto.querySelector('.picture__likes').textContent = item.likes;
-  newPhoto.querySelector('.picture__comments').textContent = item.comments;
+  newPhoto.querySelector('.picture__comments').textContent = getRandomNumber(5, 100);
 
   return newPhoto;
 };
 
-for (var index = 0; index < pictures.length - 1; index++) {
-  photoFragment.appendChild(renderPhoto(pictures[index]));
+for (var i = 0; i < pictures.length; i++) {
+  photoFragment.appendChild(renderPhoto(pictures[i]));
 }
 
-PICTURE_CONTAINER.appendChild(photoFragment);
+pictureContainer.appendChild(photoFragment);
 
 // Upgrade of Big-picture
-var BIG_PIC_CONTAINER = document.querySelector('.big-picture');
-var COM_CONTAINER = document.querySelector('.social__comments');
-var COM_COUNT = document.querySelector('.social__comment-count');
-var COM_LOADER = document.querySelector('.social__comments-loader');
+var bigPicContainer = document.querySelector('.big-picture');
+var comContainer = document.querySelector('.social__comments');
+var comCount = document.querySelector('.social__comment-count');
+var comLoader = document.querySelector('.social__comments-loader');
 var AVATAR_NUMBER = {
   MIN: 1,
   MAX: 6
 };
-BIG_PIC_CONTAINER.classList.remove('hidden');
-COM_LOADER.classList.add('visually-hidden');
-COM_COUNT.classList.add('visually-hidden');
 
-BIG_PIC_CONTAINER.querySelector('.big-picture__img img').src = pictures[0].url;
-BIG_PIC_CONTAINER.querySelector('.likes-count').textContent = pictures[0].likes;
-BIG_PIC_CONTAINER.querySelector('.comments-count').textContent = pictures[0].comments.length;
-BIG_PIC_CONTAINER.querySelector('.social__caption').textContent = pictures[0].description;
+bigPicContainer.querySelector('.big-picture__img img').src = pictures[0].url;
+bigPicContainer.querySelector('.likes-count').textContent = pictures[0].likes;
+bigPicContainer.querySelector('.comments-count').textContent = pictures[0].comments.length;
+bigPicContainer.querySelector('.social__caption').textContent = pictures[0].description;
 
 // Create COMMENT for a picture
 var createCom = function (data) {
   var liItem = document.createElement('li');
-  liItem.classList.add('social__comment');
   var imgItem = document.createElement('img');
+  var pItem = document.createElement('p');
+
+  liItem.classList.add('social__comment');
+
   imgItem.classList.add('social__picture');
   imgItem.src = 'img/avatar-'
     + getRandomNumber(AVATAR_NUMBER.MIN, AVATAR_NUMBER.MAX)
@@ -111,7 +111,7 @@ var createCom = function (data) {
   imgItem.width = 35;
   imgItem.height = 35;
   liItem.appendChild(imgItem);
-  var pItem = document.createElement('p');
+
   pItem.classList.add('social__text');
   pItem.textContent = data.comments.join('');
   liItem.appendChild(pItem);
@@ -119,8 +119,37 @@ var createCom = function (data) {
 };
 
 var comFragment = document.createDocumentFragment();
-for (var ind = 0, j = getRandomNumber(1, 2); ind < j; ind++) {
-  comFragment.appendChild(createCom(pictures[ind]));
+for (var i = 0, j = getRandomNumber(1, 2); i < j; i++) {
+  comFragment.appendChild(createCom(pictures[i]));
 }
 
-COM_CONTAINER.appendChild(comFragment);
+// bigPicContainer.classList.remove('hidden');
+// comLoader.classList.add('visually-hidden');
+// comCount.classList.add('visually-hidden');
+// comContainer.appendChild(comFragment);
+
+
+
+// id upload-file > change, remove class hidden from img-upload__overlay
+// as you add class Hidden to img-upload_overlay, needs to clean input file
+/*---------------------
+
+        Loading the photo and showing the form of setting it
+          - remove class hidden form container .img-upload__overlay
+            as input type='file' tracked change;
+          - after clousing the form (adding the class hidden), needs to set value of input to '';
+
+----------------------*/
+
+var uploadFileInput = document.querySelector('#upload-file');
+var imgUploadContainer = document.querySelector('.img-upload__overlay');
+var imgUploadCancel = document.querySelector('.img-upload__cancel');
+
+uploadFileInput.addEventListener('change', function () {
+  imgUploadContainer.classList.remove('hidden');
+});
+
+imgUploadCancel.addEventListener('click', function () {
+  imgUploadContainer.classList.add('hidden');
+  uploadFileInput.value = '';
+});
