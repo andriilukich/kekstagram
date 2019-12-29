@@ -82,9 +82,9 @@ pictureContainer.appendChild(photoFragment);
 
 // Upgrade of Big-picture
 var bigPicContainer = document.querySelector('.big-picture');
-var comContainer = document.querySelector('.social__comments');
-var comCount = document.querySelector('.social__comment-count');
-var comLoader = document.querySelector('.social__comments-loader');
+// var comContainer = document.querySelector('.social__comments');
+// var comCount = document.querySelector('.social__comment-count');
+// var comLoader = document.querySelector('.social__comments-loader');
 var AVATAR_NUMBER = {
   MIN: 1,
   MAX: 6
@@ -136,8 +136,8 @@ for (var i = 0, j = getRandomNumber(1, 2); i < j; i++) {
 
         Loading the photo and showing the form of setting it
           - remove class hidden form container .img-upload__overlay
-            as input type='file' tracked change;
-          - after clousing the form (adding the class hidden), needs to set value of input to '';
+            as input type=file tracked change;
+          - after clousing the form (adding the class hidden), needs to set value of input to empty string;
 
 ----------------------*/
 
@@ -152,4 +152,72 @@ uploadFileInput.addEventListener('change', function () {
 imgUploadCancel.addEventListener('click', function () {
   imgUploadContainer.classList.add('hidden');
   uploadFileInput.value = '';
+});
+
+
+/*---------------------
+
+        Filters level:
+          - got level-pin container .effect-level__line width
+          - trackking level-pin .effect-level__pin on mouse up
+          - finded the proportion of level-pin to it's container
+          - set it's value to filter property
+        Filters btn:
+          - Delegation tracking click filter switching buttons
+          - Determining the type of filter
+          - Assigning this class to a photograph
+          - The value of this filter is moderated due to the level
+
+----------------------*/
+
+var imgUploadPreview = document.querySelector('.img-upload__preview img');
+var pinContainer = document.querySelector('.effect-level__line');
+var pinLevel = pinContainer.querySelector('.effect-level__pin');
+
+var getPinLevel = function () {
+  var pinLeft = pinLevel.offsetLeft;
+  var pinContainerWidth = pinContainer.offsetWidth;
+  return Math.floor(pinLeft * 100 / pinContainerWidth);
+};
+
+var setFilterValue = function () {
+  var imgStyle = imgUploadPreview.style;
+  var filterType = imgUploadPreview.classList[0].slice(18);
+  var filterName = '';
+
+  switch (filterType) {
+    case 'chrome':
+      filterName = 'grayscale';
+      break;
+    case 'marvin':
+      filterName = 'invert';
+      break;
+    case 'phobos':
+      filterName = 'blur';
+      break;
+    case 'heat':
+      filterName = 'brightness';
+      break;
+    case 'sepia':
+      filterName = 'sepia';
+  }
+
+  if (filterName !== 'blur') {
+    imgStyle.WebkitFilter = filterName + '(' + getPinLevel() + '%)';
+  } else {
+    imgStyle.WebkitFilter = filterName + '(' + getPinLevel() + 'px)';
+  }
+};
+
+pinLevel.addEventListener('mouseup', function () {
+  setFilterValue();
+});
+
+document.addEventListener('click', function (evt) {
+  var target = evt.target;
+  if (target.type === 'radio') {
+    imgUploadPreview.setAttribute('class', '');
+    imgUploadPreview.setAttribute('style', '');
+    imgUploadPreview.classList.add('effects__preview--' + target.value);
+  }
 });
