@@ -80,22 +80,16 @@ for (var i = 0; i < pictures.length; i++) {
 
 pictureContainer.appendChild(photoFragment);
 
-// Upgrade of Big-picture
+// Create COMMENT for a Big picture
 var bigPicContainer = document.querySelector('.big-picture');
-// var comContainer = document.querySelector('.social__comments');
-// var comCount = document.querySelector('.social__comment-count');
-// var comLoader = document.querySelector('.social__comments-loader');
+var comContainer = bigPicContainer.querySelector('.social__comments');
+var comCount = bigPicContainer.querySelector('.social__comment-count');
+var comLoader = bigPicContainer.querySelector('.social__comments-loader');
 var AVATAR_NUMBER = {
   MIN: 1,
   MAX: 6
 };
 
-bigPicContainer.querySelector('.big-picture__img img').src = pictures[0].url;
-bigPicContainer.querySelector('.likes-count').textContent = pictures[0].likes;
-bigPicContainer.querySelector('.comments-count').textContent = pictures[0].comments.length;
-bigPicContainer.querySelector('.social__caption').textContent = pictures[0].description;
-
-// Create COMMENT for a picture
 var createCom = function (data) {
   var liItem = document.createElement('li');
   var imgItem = document.createElement('img');
@@ -123,15 +117,77 @@ for (var i = 0, j = getRandomNumber(1, 2); i < j; i++) {
   comFragment.appendChild(createCom(pictures[i]));
 }
 
-// bigPicContainer.classList.remove('hidden');
-// comLoader.classList.add('visually-hidden');
-// comCount.classList.add('visually-hidden');
-// comContainer.appendChild(comFragment);
+var setNewCom = function () {
+  comLoader.classList.add('visually-hidden');
+  comCount.classList.add('visually-hidden');
+  comContainer.appendChild(comFragment);
+};
 
+/*---------------------
 
+        Show the Big picture:
+          - Add event.listener to document, which is tracking the target
+          - Through the target gets info about photo
+          - Set photos info to Big picture
 
-// id upload-file > change, remove class hidden from img-upload__overlay
-// as you add class Hidden to img-upload_overlay, needs to clean input file
+        Clouse the Big picture:
+          - Track clicks on #picture-cancel and add class to Big Picture HIDDEN
+
+----------------------*/
+
+var btnBigPictureCancel = bigPicContainer.querySelector('#picture-cancel');
+
+// Upgrade of Big-picture
+
+var updateBigPictureInfo = function (index) {
+  bigPicContainer.querySelector('.big-picture__img img').src = pictures[index].url;
+  bigPicContainer.querySelector('.likes-count').textContent = pictures[index].likes;
+  bigPicContainer.querySelector('.comments-count').textContent = pictures[index].comments.length;
+  bigPicContainer.querySelector('.social__caption').textContent = pictures[index].description;
+};
+
+var onPictureClick = function (index) {
+  updateBigPictureInfo(index);
+  setNewCom();
+  bigPicContainer.classList.remove('hidden');
+};
+
+var onPreviewPictureClick = function (evt) {
+  var target = evt.target;
+
+  if (target.nodeName === 'IMG') {
+    var srcImgTarget = evt.target.attributes.src.value;
+
+    for (var i = 0; i < pictures.length; i++) {
+      if (srcImgTarget === pictures[i].url) {
+        onPictureClick(i);
+      }
+    }
+  }
+  document.addEventListener('keydown', onBigPictureEscPress);
+};
+
+var ESC_KEYCODE = 27;
+
+var closeBigPicture = function () {
+  bigPicContainer.classList.add('hidden');
+  document.removeEventListener('keydown', onBigPictureEscPress);
+};
+
+var onBigPictureEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeBigPicture();
+  }
+};
+
+document.addEventListener('click', function (evt) {
+  onPreviewPictureClick(evt);
+});
+
+btnBigPictureCancel.addEventListener('click', function () {
+  closeBigPicture();
+});
+
 /*---------------------
 
         Loading the photo and showing the form of setting it
@@ -153,9 +209,9 @@ for (var i = 0, j = getRandomNumber(1, 2); i < j; i++) {
 
 ----------------------*/
 
-var uploadFileInput = document.querySelector('#upload-file');
+var setUploadedPhotoOpen = document.querySelector('#upload-file');
 var imgUploadContainer = document.querySelector('.img-upload__overlay');
-var imgUploadCancel = document.querySelector('.img-upload__cancel');
+var setUploadedPhotoClose = document.querySelector('.img-upload__cancel');
 var imgUploadPreview = document.querySelector('.img-upload__preview img');
 var pinContainer = document.querySelector('.effect-level__line');
 var pinLevel = pinContainer.querySelector('.effect-level__pin');
@@ -168,17 +224,11 @@ var getPinLevel = function () {
 
 var setFilterValue = function (filterName) {
   var imgStyle = imgUploadPreview.style;
-  imgUploadPreview.setAttribute('style', '');
   if (filterName !== 'blur') {
     imgStyle.WebkitFilter = filterName + '(' + getPinLevel() + '%)';
   } else {
     imgStyle.WebkitFilter = filterName + '(' + getPinLevel() / 10 + 'px)';
   }
-};
-
-var onPinMouseup = function () {
-  var filterName = imgUploadPreview.style.filter.split('(')[0];
-  setFilterValue(filterName);
 };
 
 var onFilterClick = function (evt) {
@@ -208,14 +258,66 @@ var onFilterClick = function (evt) {
   }
 };
 
-uploadFileInput.addEventListener('change', function () {
+var scaleControlBtnSmaller = imgUploadContainer.querySelector('.scale__control--smaller');
+var scaleControlBtnBigger = imgUploadContainer.querySelector('.scale__control--bigger');
+var scaleControlInput = imgUploadContainer.querySelector('.scale__control--value');
+
+var scaleValue = {
+  MIN_STEP: 25,
+  MAX: 100
+};
+scaleControlInput.value = scaleValue.MAX + '%';
+var scaleControlInputValue;
+
+var closePopup = function () {
+  imgUploadContainer.classList.add('hidden');
+  document.removeEventListener('keydown', onPopupEscPress);
+  document.removeEventListener('click', onFilterClick);
+  setUploadedPhotoOpen.value = '';
+};
+
+var onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+};
+
+var openPopup = function () {
   imgUploadContainer.classList.remove('hidden');
+  document.addEventListener('keydown', onPopupEscPress);
   document.addEventListener('click', onFilterClick);
-  pinLevel.addEventListener('mouseup', onPinMouseup);
+};
+
+var reducePhoto = function () {
+  scaleControlInputValue = parseInt(scaleControlInput.value, 10);
+  if (scaleControlInputValue > scaleValue.MIN_STEP) {
+    imgUploadPreview.style.transform = 'scale(' + (scaleControlInputValue - scaleValue.MIN_STEP) / scaleValue.MAX + ')';
+    scaleControlInput.value = scaleControlInputValue - scaleValue.MIN_STEP + '%';
+  }
+};
+
+var enlargePhoto = function () {
+  scaleControlInputValue = parseInt(scaleControlInput.value, 10);
+  if (scaleControlInputValue < scaleValue.MAX) {
+    imgUploadPreview.style.transform = 'scale(' + (scaleControlInputValue + scaleValue.MIN_STEP) / scaleValue.MAX + ')';
+    scaleControlInput.value = scaleControlInputValue + scaleValue.MIN_STEP + '%';
+  }
+};
+
+scaleControlBtnSmaller.addEventListener('click', reducePhoto);
+scaleControlBtnBigger.addEventListener('click', enlargePhoto);
+
+pinLevel.addEventListener('mouseup', function () {
+  var filterName = imgUploadPreview.style.filter.split('(')[0];
+  setFilterValue(filterName);
 });
 
-imgUploadCancel.addEventListener('click', function () {
-  imgUploadContainer.classList.add('hidden');
-  uploadFileInput.value = '';
-  document.removeEventListener('click', onFilterClick);
+setUploadedPhotoOpen.addEventListener('change', function () {
+  openPopup();
 });
+
+setUploadedPhotoClose.addEventListener('click', function () {
+  closePopup();
+});
+
+
