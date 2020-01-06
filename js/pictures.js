@@ -320,4 +320,62 @@ setUploadedPhotoClose.addEventListener('click', function () {
   closePopup();
 });
 
+/*---------------------
+
+        Hashtags validation:
+          - Add a listener to the field
+          - Write a check under all conditions
+          - As well as a hint for the user
+
+----------------------*/
+var form = document.querySelector('#upload-select-image');
+var inputHashtags = form.querySelector('.text__hashtags');
+var inputComments = form.querySelector('.text__description');
+var btnSubmitForm = form.querySelector('#upload-submit');
+
+var MAX_HASHTAGS_NUMBER = 5;
+var MIN_HASHTAGS_LENGTH = 1;
+var MAX_HASHTAGS_LENGTH = 20;
+var MAX_COMMENT_LENGTH = 140;
+
+var chackHashtags = function (list) {
+  inputHashtags.setCustomValidity('');
+  var hashtagsList = list.split(' ');
+  var message = '';
+  if (hashtagsList.length > MAX_HASHTAGS_NUMBER) {
+    message = 'The maximum allowed number of hashtag should not exceed 5. ';
+  } else {
+    for (var i = 0; i < hashtagsList.length; i++) {
+      if (hashtagsList[i][0] !== '#') {
+        message += 'The hashtag must begin with the "#" sign.';
+      } else if (hashtagsList[i].length === MIN_HASHTAGS_LENGTH) {
+        message += 'The hashtag cannot consist of a single "#" character. ';
+      } else if (hashtagsList[i].length > MAX_HASHTAGS_LENGTH) {
+        message += 'The maximum length of the hashtag should not exceed 20 characters. ';
+      }
+      var hashtagRepeatCheck = hashtagsList[i].toLowerCase();
+      for (var j = i + 1; j < hashtagsList.length; j++) {
+        if (hashtagRepeatCheck === hashtagsList[j].toLowerCase()) {
+          message += 'Your hashtag (' + hashtagsList[j] + ') cannot be repeated. ';
+        }
+      }
+    }
+  }
+  if (message) {
+    inputHashtags.style.outlineColor = 'red';
+    inputHashtags.setCustomValidity(message);
+  }
+};
+
+var checkComments = function () {
+  if (inputComments.value > 140) {
+    inputComments.setCustomValidity('Comment length must not exceed 140 characters');
+    inputComments.style.outlineColor = 'red';
+  }
+};
+
+btnSubmitForm.addEventListener('click', function () {
+  chackHashtags(inputHashtags.value);
+  checkComments(inputComments.value);
+});
 
