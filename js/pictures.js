@@ -327,6 +327,11 @@ setUploadedPhotoClose.addEventListener('click', function () {
           - Write a check under all conditions
           - As well as a hint for the user
 
+        Comments validation:
+          - Add a listener to the textarea
+          - Write a check under all conditions
+          - As well as a hint for the user
+
 ----------------------*/
 var form = document.querySelector('#upload-select-image');
 var inputHashtags = form.querySelector('.text__hashtags');
@@ -368,7 +373,7 @@ var chackHashtags = function (list) {
 };
 
 var checkComments = function () {
-  if (inputComments.value > 140) {
+  if (inputComments.value > MAX_COMMENT_LENGTH) {
     inputComments.setCustomValidity('Comment length must not exceed 140 characters');
     inputComments.style.outlineColor = 'red';
   }
